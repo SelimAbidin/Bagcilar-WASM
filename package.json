@@ -1,7 +1,9 @@
 {
+  "workspaces": ["bagcilar-web","bagcilar-wasm/pkg"],
   "name": "bagcilar-2d",
   "version": "1.0.0",
   "main": "src/index.js",
   "author": "Selim Abidin",
-  "license": "MIT"
+  "license": "MIT",
+  "private": true
 }
