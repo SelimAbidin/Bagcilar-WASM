@@ -9,10 +9,6 @@ license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[[bin]]
-name = "test"
-path = "src/Bagcilar2D.rs"
-
 [lib]
 crate-type = ["cdylib", "rlib"]
 

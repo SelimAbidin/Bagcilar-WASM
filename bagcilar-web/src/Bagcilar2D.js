@@ -2,10 +2,13 @@
 // Object_2d.new().bagir()
 // window.Object_2d = Object_2d
 
-import {Object_2d} from 'bagcilar-wasm'
+import {Object2D,Container} from 'bagcilar-wasm'
 
-window.Object_2d= Object_2d
+window.Object2D= Object2D
+window.Container= Container
 
-console.log(Object_2d);
+
+console.log(Container);
+
 
 // wasm.greet();
