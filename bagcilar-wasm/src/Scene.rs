@@ -1,8 +1,8 @@
 use crate::wasm_utils::log;
+use crate::Object2D::Object2D;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::*;
-
 struct Frame {
     context: WebGlRenderingContext,
 }
@@ -11,6 +11,7 @@ struct Frame {
 pub struct Scene {
     width: i8,
     frame: Frame,
+    children: Vec<Object2D>,
 }
 
 #[wasm_bindgen]
@@ -39,6 +40,7 @@ impl Scene {
         return Scene {
             width,
             frame: Frame { context },
+            children: vec![],
         };
     }
 
@@ -47,6 +49,18 @@ impl Scene {
         // let context: WebGlRenderingContext = context;
         context.clear_color(1.0, 0.0, 0.0, 1.0);
         context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
+
+        let mut i: i8 = 0;
+        let size = self.children.len();
+        // log(&size.to_string());
+    }
+
+    pub fn add(&mut self, obj: Object2D) {
+        self.children.push(obj);
+    }
+
+    pub fn child_num(&self) -> usize {
+        return self.children.len();
     }
 
     pub fn speak(&self) {

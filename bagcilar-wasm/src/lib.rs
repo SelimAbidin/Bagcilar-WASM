@@ -1,8 +1,8 @@
 // pub mod Container;
-// pub mod Object2D;
+pub mod Object2D;
 // pub mod Sprite;
 // use self::wasm_utils::{log, test};
-// use self::Object2D;
+// use Object2D;
 pub mod Scene;
 mod wasm_utils;
 use wasm_utils::log;

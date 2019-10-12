@@ -11,6 +11,13 @@ window.Scene = Scene;
 let scene;
 function createScene(params) {
   scene = Scene.new("canvas", 20);
+
+  for (let i = 0; i < 10; i++) {
+    let obj = Object2D.new();
+    scene.add(obj);
+  }
+
+  window.scene = scene;
   requestAnimationFrame(render);
 }
 
@@ -21,4 +28,11 @@ function render() {
 
 createScene();
 
+document.addEventListener("click", () => {
+  Array.from({ length: 10 }, () => {
+    return Object2D.new();
+  }).forEach(e => {
+    scene.add(e);
+  });
+});
 // wasm.greet();
