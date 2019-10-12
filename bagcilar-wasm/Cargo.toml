@@ -22,8 +22,13 @@ features = [
   'Document',
   'Element',
   'HtmlElement',
+  'HtmlCanvasElement',
   'Node',
   'Window',
+  'WebGlBuffer',
+  'WebGlRenderingContext',
+  'WebGlProgram',
+  'WebGlShader',
 ]
 
 

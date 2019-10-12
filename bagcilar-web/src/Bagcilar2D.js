@@ -8,9 +8,15 @@ window.Object2D = Object2D;
 window.Container = Container;
 window.Scene = Scene;
 
+let scene;
 function createScene(params) {
-  let scene = Scene.new("canvas", 20);
-  scene.speak();
+  scene = Scene.new("canvas", 20);
+  requestAnimationFrame(render);
+}
+
+function render() {
+  requestAnimationFrame(render);
+  scene.render();
 }
 
 createScene();
