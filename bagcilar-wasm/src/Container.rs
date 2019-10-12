@@ -1,4 +1,3 @@
-
 use wasm_bindgen::prelude::*;
 
 pub trait Updatable {
@@ -7,14 +6,12 @@ pub trait Updatable {
 
 #[wasm_bindgen]
 pub struct Container {
-    children:i32
+    children: i32,
 }
 
 #[wasm_bindgen]
 impl Container {
-    pub fn new () -> Container {
-        Container{
-            children:1
-        }
+    pub fn new() -> Container {
+        Container { children: 1 }
     }
 }
