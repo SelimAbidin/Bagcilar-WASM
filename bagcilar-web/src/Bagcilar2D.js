@@ -7,15 +7,12 @@ import { Object2D, Container, Scene } from "bagcilar-wasm";
 window.Object2D = Object2D;
 window.Container = Container;
 window.Scene = Scene;
-
+let _counter = 0;
 let scene;
 function createScene(params) {
   scene = Scene.new("canvas", 20);
 
-  for (let i = 0; i < 10; i++) {
-    let obj = Object2D.new();
-    scene.add(obj);
-  }
+  addObjects();
 
   window.scene = scene;
   requestAnimationFrame(render);
@@ -28,11 +25,18 @@ function render() {
 
 createScene();
 
-document.addEventListener("click", () => {
-  Array.from({ length: 10 }, () => {
-    return Object2D.new();
+function addObjects(count = 1) {
+  Array.from({ length: count }, (v, i) => {
+    let obj = Object2D.new();
+    obj.set_pos_x(i);
+    obj.set_id(i + ++_counter);
+    return obj;
   }).forEach(e => {
     scene.add(e);
   });
+}
+
+document.addEventListener("click", () => {
+  addObjects();
 });
 // wasm.greet();
