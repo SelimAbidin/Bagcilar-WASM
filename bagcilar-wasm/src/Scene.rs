@@ -2,7 +2,6 @@ use crate::object2d::Transform2d;
 use crate::object2d::{Material, Object2D};
 use crate::wasm_utils::log;
 use cgmath::Ortho;
-use cgmath::Vector3;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::*;
@@ -11,11 +10,11 @@ struct Frame {
     context: WebGlRenderingContext,
 }
 
-fn to_string(v: &Vector3<f32>) -> String {
-    let x = v.x.to_string().to_owned();
-    let y = v.y.to_string().to_owned();
-    return format!("x:{} y:{}", x, y);
-}
+// fn to_string(v: &Vector3<f32>) -> String {
+//     let x = v.x.to_string().to_owned();
+//     let y = v.y.to_string().to_owned();
+//     return format!("x:{} y:{}", x, y);
+// }
 
 #[wasm_bindgen]
 pub struct Scene {
@@ -25,7 +24,7 @@ pub struct Scene {
     children: Vec<Object2D>,
 }
 
-fn calculate_for_render(mut transform: Transform2d) {
+fn calculate_for_render(_transform: Transform2d) {
     // if obj.position_dirty {
     //     log("Dirty");
     // }
@@ -97,10 +96,10 @@ pub fn link_program(
     }
 }
 
-fn compile_and_bind_shader(frame: &Frame, obj: &mut Object2D) {
+fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
     // frame.context.createShader(gl.FRAGMENT_SHADER);
 
-    if obj.material.is_none() {
+    if material.is_none() {
         let vertex_str = r#"
         attribute vec2 position;
         void main() {
@@ -132,10 +131,14 @@ fn compile_and_bind_shader(frame: &Frame, obj: &mut Object2D) {
         let buffer = context.create_buffer().unwrap();
         // context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
 
-        obj.set_material(Some(Material {
+        *material = Some(Material {
             program,
             vbo: buffer,
-        }))
+        })
+        // material.set_material(Some(Material {
+        //     program,
+        //     vbo: buffer,
+        // }))
     }
 }
 
@@ -175,7 +178,6 @@ impl Scene {
         context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
 
         let frame = Frame { context };
-        // compile_and_bind_shader(&frame);
         return Scene {
             _camera: camera,
             width,
@@ -184,18 +186,18 @@ impl Scene {
         };
     }
 
-    pub fn render(&self) {
+    pub fn render(&mut self) {
         let context: &WebGlRenderingContext = &self.frame.context;
         // let context: WebGlRenderingContext = context;
         context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
         let _size = self.children.len();
-        for element in self.children.iter() {
+        for obj2d in self.children.iter_mut() {
             // log(&element.id.to_string());
             // element.update();
 
-            compile_and_bind_shader(&self.frame, element);
-            calculate_for_render(element.transform);
+            compile_and_bind_shader(&self.frame, &mut obj2d.material);
+            calculate_for_render(obj2d.transform);
 
             // let buffer = context.create_buffer().unwrap();
 
