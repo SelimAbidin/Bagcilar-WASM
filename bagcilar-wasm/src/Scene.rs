@@ -109,7 +109,7 @@ fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
 
         let frag_shader_str = r#"
         void main() {
-            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
         }
     "#;
 
@@ -191,13 +191,45 @@ impl Scene {
         // let context: WebGlRenderingContext = context;
         context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
-        let _size = self.children.len();
+        let size = self.children.len();
+
         for obj2d in self.children.iter_mut() {
             // log(&element.id.to_string());
             // element.update();
 
             compile_and_bind_shader(&self.frame, &mut obj2d.material);
             calculate_for_render(obj2d.transform);
+
+            let material: Option<&Material> = obj2d.material.as_ref();
+
+            // log(&format!("{:?}", *material.unwrap().vbo));
+
+            // log(&format!("{:?}", obj2d.material));
+            context.bind_buffer(
+                WebGlRenderingContext::ARRAY_BUFFER,
+                Some(&material.unwrap().vbo),
+            );
+
+            unsafe {
+                let vert_array = js_sys::Float32Array::view(&obj2d.vertices);
+                context.buffer_data_with_array_buffer_view(
+                    WebGlRenderingContext::ARRAY_BUFFER,
+                    &vert_array,
+                    WebGlRenderingContext::STATIC_DRAW,
+                );
+            }
+
+            context.vertex_attrib_pointer_with_i32(0, 2, WebGlRenderingContext::FLOAT, false, 0, 0);
+            context.enable_vertex_attrib_array(0);
+
+            // context.clear_color(0.0, 0.0, 0.0, 1.0);
+            // context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
+
+            context.draw_arrays(
+                WebGlRenderingContext::TRIANGLES,
+                0,
+                (obj2d.vertices.len() / 2) as i32,
+            );
 
             // let buffer = context.create_buffer().unwrap();
 

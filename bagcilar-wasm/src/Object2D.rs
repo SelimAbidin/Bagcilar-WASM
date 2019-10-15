@@ -12,7 +12,7 @@ pub struct Transform2d {
 }
 
 #[wasm_bindgen]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Material {
     #[wasm_bindgen(skip)]
     pub program: WebGlProgram,
