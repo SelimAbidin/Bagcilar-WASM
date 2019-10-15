@@ -1,8 +1,6 @@
+use crate::object2d::Transform2d;
+use crate::object2d::{Material, Object2D};
 use crate::wasm_utils::log;
-use crate::Object2D::Object2D;
-use crate::Object2D::Transform2d;
-use cgmath::Matrix3;
-use cgmath::Matrix4;
 use cgmath::Ortho;
 use cgmath::Vector3;
 use wasm_bindgen::prelude::*;
@@ -23,7 +21,7 @@ fn to_string(v: &Vector3<f32>) -> String {
 pub struct Scene {
     width: i8,
     frame: Frame,
-    camera: Ortho<f32>,
+    _camera: Ortho<f32>,
     children: Vec<Object2D>,
 }
 
@@ -99,35 +97,46 @@ pub fn link_program(
     }
 }
 
-fn draw_on_scree(frame: &Frame, obj: &Object2D) {
+fn compile_and_bind_shader(frame: &Frame, obj: &mut Object2D) {
     // frame.context.createShader(gl.FRAGMENT_SHADER);
 
-    let vertex_str = r#"
-        attribute vec4 position;
+    if obj.material.is_none() {
+        let vertex_str = r#"
+        attribute vec2 position;
         void main() {
-            gl_Position = position;
+            gl_Position = vec4(position.x,position.y,0.0, 0.0);
         }
     "#;
 
-    let frag_shader_str = r#"
+        let frag_shader_str = r#"
         void main() {
             gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
         }
     "#;
 
-    let context: &WebGlRenderingContext = &frame.context;
-    let vertex_shader_type: u32 = WebGlRenderingContext::VERTEX_SHADER;
-    let frag_shader_type: u32 = WebGlRenderingContext::FRAGMENT_SHADER;
-    let vert_shader = compile_shader(context, vertex_shader_type, vertex_str).unwrap();
-    let frag_shader = compile_shader(context, frag_shader_type, frag_shader_str).unwrap();
+        let context: &WebGlRenderingContext = &frame.context;
+        let vertex_shader_type: u32 = WebGlRenderingContext::VERTEX_SHADER;
+        let frag_shader_type: u32 = WebGlRenderingContext::FRAGMENT_SHADER;
+        let vert_shader = compile_shader(context, vertex_shader_type, vertex_str).unwrap();
+        let frag_shader = compile_shader(context, frag_shader_type, frag_shader_str).unwrap();
 
-    // let opt: Option<u8> = vert_shader.ok();
+        // let opt: Option<u8> = vert_shader.ok();
 
-    let program = link_program(context, &vert_shader, &frag_shader).unwrap();
-    context.use_program(Some(&program));
-    // println!("{:?}", frag_shader);
+        let program = link_program(context, &vert_shader, &frag_shader).unwrap();
 
-    log(&format!("{:?}", program));
+        // log(&format!("{:?}", program));
+        // println!("{:?}", program);
+        context.use_program(Some(&program));
+        // println!("{:?}", frag_shader);
+
+        let buffer = context.create_buffer().unwrap();
+        // context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
+
+        obj.set_material(Some(Material {
+            program,
+            vbo: buffer,
+        }))
+    }
 }
 
 #[wasm_bindgen]
@@ -162,13 +171,15 @@ impl Scene {
             .dyn_into::<WebGlRenderingContext>()
             .unwrap();
 
-        context.clear_color(1.0, 0.0, 0.0, 1.0);
+        context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
 
+        let frame = Frame { context };
+        // compile_and_bind_shader(&frame);
         return Scene {
-            camera,
+            _camera: camera,
             width,
-            frame: Frame { context },
+            frame,
             children: vec![],
         };
     }
@@ -176,14 +187,21 @@ impl Scene {
     pub fn render(&self) {
         let context: &WebGlRenderingContext = &self.frame.context;
         // let context: WebGlRenderingContext = context;
-        context.clear_color(1.0, 0.0, 0.0, 1.0);
+        context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
-        let size = self.children.len();
+        let _size = self.children.len();
         for element in self.children.iter() {
             // log(&element.id.to_string());
             // element.update();
+
+            compile_and_bind_shader(&self.frame, element);
             calculate_for_render(element.transform);
-            draw_on_scree(&self.frame, element);
+
+            // let buffer = context.create_buffer().unwrap();
+
+            // log(&format!("{:?}", buffer)); // context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
+
+            // draw_on_scree(&self.frame, element);
         }
 
         // log("Bitti");

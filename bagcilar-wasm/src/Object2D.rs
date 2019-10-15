@@ -1,10 +1,8 @@
 // use cgmath::prelude::*;
 use cgmath::Matrix3;
 use cgmath::Vector3;
-use std::fmt::Debug;
-use wasm_bindgen::convert::*;
-use wasm_bindgen::describe::*;
 use wasm_bindgen::prelude::*;
+use web_sys::*;
 
 #[derive(Clone, Copy)]
 pub struct Transform2d {
@@ -13,21 +11,25 @@ pub struct Transform2d {
     pub position_matrix: Matrix3<f32>,
 }
 
-// impl FromWasmAbi for Transform2d {}
-// impl IntoWasmAbi for Transform2d {}
-// impl WasmDescribe for Transform2d {}
-
-// trait Copy where Vec<f32> {
-
-// }
+#[wasm_bindgen]
+#[derive(Clone)]
+pub struct Material {
+    #[wasm_bindgen(skip)]
+    pub program: WebGlProgram,
+    #[wasm_bindgen(skip)]
+    pub vbo: WebGlBuffer,
+}
 
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct Object2D {
     #[wasm_bindgen(skip)]
     pub transform: Transform2d,
     #[wasm_bindgen(skip)]
-    pub vertices: Vec<f32>,
+    pub vertices: [f32; 8],
     pub id: u8,
+    #[wasm_bindgen(skip)]
+    pub material: Option<Material>,
 }
 
 #[wasm_bindgen]
@@ -37,8 +39,13 @@ impl Object2D {
     }
 
     pub fn set_vertices(&mut self) {
-        self.vertices = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
+        self.vertices = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
     }
+
+    pub fn set_material(&mut self, mat: Option<Material>) {
+        self.material = mat;
+    }
+
     // pub fn get_vertices(&mut self) -> Vec<f32> {
     //     return self.vertices;
     // }
@@ -46,6 +53,7 @@ impl Object2D {
     pub fn new() -> Object2D {
         let v: f32 = 10.0;
         Object2D {
+            material: None,
             id: 1,
             transform: Transform2d {
                 position_dirty: true,
@@ -61,7 +69,7 @@ impl Object2D {
                 ),
             },
             // vertices: vec![-v, v, -v, -v, v, v, v, -v],
-            vertices: vec![-v, v, -v, -v, v, v, v, -v],
+            vertices: [-v, v, -v, -v, v, v, v, -v],
         }
 
         // Object2D {
@@ -88,7 +96,7 @@ impl Object2D {
         // }
     }
 
-    pub fn set_pos_x(&mut self, x: f32) {
+    pub fn set_pos_x(&self, _x: f32) {
         // if self.position[0] != x {
         //     self.position[0] = x;
         //     self.position_dirty = true;
