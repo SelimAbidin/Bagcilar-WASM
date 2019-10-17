@@ -101,37 +101,53 @@ fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
 
     if material.is_none() {
         let vertex_str = r#"
-        varying vec3 v_pos;
+        varying vec2 v_pos;
         attribute vec2 position;
         void main() {
-            vec2 xy = clamp(position, 0.0, 1.0);
-            v_pos = vec3(xy.x, xy.y, 0.0-xy.y);
+            v_pos = position;
             gl_Position = vec4(position.x,position.y,0.0, 1.0);
         }
     "#;
 
         let frag_shader_str = r#"
         precision mediump float;
-        varying vec3 v_pos;
+        varying vec2 v_pos;
         void main() {
-            // vec3 p = v_pos;
-            gl_FragColor = vec4(v_pos, 1.0);
+            gl_FragColor = vec4(v_pos.x,v_pos.y,1.0, 1.0);
         }
     "#;
 
         let context: &WebGlRenderingContext = &frame.context;
         let vertex_shader_type: u32 = WebGlRenderingContext::VERTEX_SHADER;
         let frag_shader_type: u32 = WebGlRenderingContext::FRAGMENT_SHADER;
-        let vert_shader = compile_shader(context, vertex_shader_type, vertex_str).unwrap();
-        let frag_shader = compile_shader(context, frag_shader_type, frag_shader_str).unwrap();
+        let vert_shader = compile_shader(context, vertex_shader_type, vertex_str);
+        let frag_shader = compile_shader(context, frag_shader_type, frag_shader_str);
 
-        // let opt: Option<u8> = vert_shader.ok();
+        if vert_shader.is_err() {
+            log(&format!(
+                "Vertex Error : {}",
+                vert_shader.as_ref().unwrap_err()
+            ));
+        }
 
-        let program = link_program(context, &vert_shader, &frag_shader).unwrap();
+        if frag_shader.is_err() {
+            log(&format!(
+                "Fragment Error : {}",
+                frag_shader.as_ref().unwrap_err()
+            ));
+        }
 
-        // log(&format!("{:?}", program));
-        // println!("{:?}", program);
-        context.use_program(Some(&program));
+        let vertex_unwrapped = vert_shader.as_ref().unwrap();
+        let frag_unwrapped = frag_shader.as_ref().unwrap();
+
+        let program = link_program(context, &vertex_unwrapped, &frag_unwrapped);
+
+        if program.is_err() {
+            println!("Eroro");
+        }
+
+        let program_unwrap = program.as_ref().unwrap();
+        context.use_program(Some(&program_unwrap));
         // println!("{:?}", frag_shader);
 
         let buffer = context.create_buffer().unwrap();
@@ -139,7 +155,7 @@ fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
         // context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
 
         *material = Some(Material {
-            program,
+            program: program.unwrap(),
             vbo: buffer,
             ibo: ibo,
         })
