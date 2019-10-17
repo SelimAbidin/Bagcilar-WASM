@@ -101,15 +101,21 @@ fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
 
     if material.is_none() {
         let vertex_str = r#"
+        varying vec3 v_pos;
         attribute vec2 position;
         void main() {
-            gl_Position = vec4(position.x,position.y,0.0, 0.0);
+            vec2 xy = clamp(position, 0.0, 1.0);
+            v_pos = vec3(xy.x, xy.y, 0.0-xy.y);
+            gl_Position = vec4(position.x,position.y,0.0, 1.0);
         }
     "#;
 
         let frag_shader_str = r#"
+        precision mediump float;
+        varying vec3 v_pos;
         void main() {
-            gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+            // vec3 p = v_pos;
+            gl_FragColor = vec4(v_pos, 1.0);
         }
     "#;
 
@@ -129,11 +135,13 @@ fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
         // println!("{:?}", frag_shader);
 
         let buffer = context.create_buffer().unwrap();
+        let ibo = context.create_buffer().unwrap();
         // context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
 
         *material = Some(Material {
             program,
             vbo: buffer,
+            ibo: ibo,
         })
         // material.set_material(Some(Material {
         //     program,
@@ -191,7 +199,7 @@ impl Scene {
         // let context: WebGlRenderingContext = context;
         context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
-        let size = self.children.len();
+        // let size = self.children.len();
 
         for obj2d in self.children.iter_mut() {
             // log(&element.id.to_string());
@@ -209,7 +217,6 @@ impl Scene {
                 WebGlRenderingContext::ARRAY_BUFFER,
                 Some(&material.unwrap().vbo),
             );
-
             unsafe {
                 let vert_array = js_sys::Float32Array::view(&obj2d.vertices);
                 context.buffer_data_with_array_buffer_view(
@@ -222,13 +229,38 @@ impl Scene {
             context.vertex_attrib_pointer_with_i32(0, 2, WebGlRenderingContext::FLOAT, false, 0, 0);
             context.enable_vertex_attrib_array(0);
 
+            context.bind_buffer(
+                WebGlRenderingContext::ELEMENT_ARRAY_BUFFER,
+                Some(&material.unwrap().ibo),
+            );
+
+            unsafe {
+                // context.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+                let indices_array = js_sys::Int16Array::view(&obj2d.indices);
+                context.buffer_data_with_array_buffer_view(
+                    WebGlRenderingContext::ELEMENT_ARRAY_BUFFER,
+                    &indices_array,
+                    WebGlRenderingContext::STATIC_DRAW,
+                );
+            }
+
+            // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+
             // context.clear_color(0.0, 0.0, 0.0, 1.0);
             // context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
 
-            context.draw_arrays(
+            // context.draw_arrays(
+            //     WebGlRenderingContext::TRIANGLES,
+            //     0,
+            //     (obj2d.vertices.len() / 2) as i32,
+            // );
+
+            // gl.drawElements(gl.TRIANGLES, nsize, gl.UNSIGNED_SHORT, 0);
+            context.draw_elements_with_i32(
                 WebGlRenderingContext::TRIANGLES,
+                3,
+                WebGlRenderingContext::UNSIGNED_SHORT,
                 0,
-                (obj2d.vertices.len() / 2) as i32,
             );
 
             // let buffer = context.create_buffer().unwrap();

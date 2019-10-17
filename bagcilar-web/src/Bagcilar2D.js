@@ -10,8 +10,11 @@ window.Scene = Scene;
 let _counter = 0;
 let scene;
 function createScene(params) {
-  scene = Scene.new("canvas", 20);
+  scene = Scene.new("canvas", 300);
 
+  let cnv = document.getElementById("canvas");
+  cnv.width = 500;
+  cnv.height = 500;
   addObjects();
 
   window.scene = scene;

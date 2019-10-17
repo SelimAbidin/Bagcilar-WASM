@@ -18,6 +18,8 @@ pub struct Material {
     pub program: WebGlProgram,
     #[wasm_bindgen(skip)]
     pub vbo: WebGlBuffer,
+    #[wasm_bindgen(skip)]
+    pub ibo: WebGlBuffer,
 }
 
 #[wasm_bindgen]
@@ -26,7 +28,9 @@ pub struct Object2D {
     #[wasm_bindgen(skip)]
     pub transform: Transform2d,
     #[wasm_bindgen(skip)]
-    pub vertices: [f32; 8],
+    pub vertices: [f32; 6],
+    #[wasm_bindgen(skip)]
+    pub indices: [i16; 3],
     pub id: u8,
     #[wasm_bindgen(skip)]
     pub material: Option<Material>,
@@ -38,9 +42,9 @@ impl Object2D {
         self.id = i;
     }
 
-    pub fn set_vertices(&mut self) {
-        self.vertices = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0];
-    }
+    // pub fn set_vertices(&mut self) {
+    //     self.vertices = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+    // }
 
     pub fn set_material(&mut self, mat: Option<Material>) {
         self.material = mat;
@@ -51,7 +55,7 @@ impl Object2D {
     // }
 
     pub fn new() -> Object2D {
-        let v: f32 = 10.0;
+        let v: f32 = 0.03;
         Object2D {
             material: None,
             id: 1,
@@ -69,7 +73,10 @@ impl Object2D {
                 ),
             },
             // vertices: vec![-v, v, -v, -v, v, v, v, -v],
-            vertices: [-v, v, -v, -v, v, v, v, -v],
+            // vertices: [-v, v, -v, -v, v, v, v, -v],
+            // vertices: [-v, -v, v, -v, v, v],
+            vertices: [-1.0, -1.0, 1.0, -1.0, -0.0, 1.0],
+            indices: [0, 1, 2],
         }
 
         // Object2D {
