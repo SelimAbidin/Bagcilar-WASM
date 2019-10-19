@@ -4,7 +4,6 @@ use crate::wasm_utils::log;
 // use cgmath::ortho;
 // use cgmath::prelude::*;
 // use cgmath::Matrix4;
-use glm::mat4;
 use glm::ortho;
 use glm::Mat4;
 use wasm_bindgen::prelude::*;
@@ -243,9 +242,7 @@ impl Scene {
             let a = context.get_uniform_location(&program, "u_projection");
             // let matrix: [[f32; 4]; 4] = self.camera.into();
             // let matrix: [f32; 16] = self.camera.as_ptr();
-
             // log(&format!("{:?}", self.camera));
-
             context.uniform_matrix4fv_with_f32_array(a.as_ref(), false, self.camera.as_slice());
             // context.uniform_matrix4fv_with_f32_sequence(a.as_ref(), false, &matrix);
 

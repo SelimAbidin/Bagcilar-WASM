@@ -60,7 +60,6 @@ impl Object2D {
     // }
 
     pub fn new() -> Object2D {
-        let v: f32 = 0.03;
         Object2D {
             material: None,
             id: 1,
