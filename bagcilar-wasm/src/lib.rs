@@ -10,6 +10,8 @@ use wasm_utils::log;
 // use Test::test_fn;
 use wasm_bindgen::prelude::*;
 
+extern crate nalgebra_glm as glm;
+
 #[wasm_bindgen(start)]
 pub fn run() {
     log("Start Function Test");

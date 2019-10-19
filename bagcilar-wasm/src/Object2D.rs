@@ -1,14 +1,19 @@
 // use cgmath::prelude::*;
-use cgmath::Matrix3;
-use cgmath::Vector3;
+// use cgmath::Matrix3;
+// use cgmath::Vector3;
+
+use glm::mat3;
+use glm::vec3;
+use glm::Mat3;
+use glm::Vec3;
 use wasm_bindgen::prelude::*;
 use web_sys::*;
 
 #[derive(Clone, Copy)]
 pub struct Transform2d {
-    pub position: Vector3<f32>,
+    pub position: Vec3,
     pub position_dirty: bool,
-    pub position_matrix: Matrix3<f32>,
+    pub position_matrix: Mat3,
 }
 
 #[wasm_bindgen]
@@ -61,16 +66,8 @@ impl Object2D {
             id: 1,
             transform: Transform2d {
                 position_dirty: true,
-                position: Vector3 {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 1.0,
-                },
-                position_matrix: Matrix3::from_cols(
-                    Vector3::new(1.0, 0.0, 0.0),
-                    Vector3::new(0.0, 1.0, 0.0),
-                    Vector3::new(0.0, 0.0, 1.0),
-                ),
+                position: vec3(0.0, 0.0, 1.0),
+                position_matrix: mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0),
             },
             // vertices: vec![-v, v, -v, -v, v, v, v, -v],
             // vertices: [-v, v, -v, -v, v, v, v, -v],

@@ -15,7 +15,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 js-sys = "0.3.28"
 wasm-bindgen = "0.2"
-cgmath = "0.17.0"
+nalgebra-glm = "0.4.2"
 
 [dependencies.web-sys]
 version = "0.3.28"
@@ -28,6 +28,7 @@ features = [
   'Window',
   'WebGlBuffer',
   'WebGlRenderingContext',
+  'WebGlUniformLocation',
   'WebGlProgram',
   'WebGlShader',
 ]

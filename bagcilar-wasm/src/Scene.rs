@@ -1,7 +1,12 @@
 use crate::object2d::Transform2d;
 use crate::object2d::{Material, Object2D};
 use crate::wasm_utils::log;
-use cgmath::Ortho;
+// use cgmath::ortho;
+// use cgmath::prelude::*;
+// use cgmath::Matrix4;
+use glm::mat4;
+use glm::ortho;
+use glm::Mat4;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::*;
@@ -20,7 +25,7 @@ struct Frame {
 pub struct Scene {
     width: i8,
     frame: Frame,
-    _camera: Ortho<f32>,
+    camera: Mat4,
     children: Vec<Object2D>,
 }
 
@@ -103,9 +108,11 @@ fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
         let vertex_str = r#"
         varying vec2 v_pos;
         attribute vec2 position;
+        uniform float test;
+        uniform mat4 u_projection;
         void main() {
-            v_pos = position;
-            gl_Position = vec4(position.x,position.y,0.0, 1.0);
+            v_pos = vec2(test);
+            gl_Position = vec4(position.x,position.y,0.0, 1.0) * u_projection;
         }
     "#;
 
@@ -169,14 +176,14 @@ fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
 #[wasm_bindgen]
 impl Scene {
     pub fn new(div: &str, width: i8) -> Scene {
-        let camera: Ortho<f32> = Ortho {
-            left: -10.0,
-            right: 10.0,
-            top: -10.0,
-            bottom: 10.0,
-            near: 0.01,
-            far: 5000.0,
-        };
+        let left: f32 = -10.0;
+        let right: f32 = 10.0;
+        let top: f32 = 10.0;
+        let bottom: f32 = -10.0;
+        let near: f32 = 0.01;
+        let far: f32 = 5000.0;
+        let camera: Mat4 = ortho(left, right, bottom, top, near, far);
+
         // let camera:Ortho = Ortho::<f32>(
         //     -10.0, 10.0, 10.0, -10.0, 0.01, 5000.0
         // )
@@ -197,13 +204,12 @@ impl Scene {
             .unwrap()
             .dyn_into::<WebGlRenderingContext>()
             .unwrap();
-
         context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
 
         let frame = Frame { context };
         return Scene {
-            _camera: camera,
+            camera: camera,
             width,
             frame,
             children: vec![],
@@ -229,6 +235,20 @@ impl Scene {
             // log(&format!("{:?}", *material.unwrap().vbo));
 
             // log(&format!("{:?}", obj2d.material));
+
+            let program: &WebGlProgram = &material.unwrap().program;
+            let test_location = context.get_uniform_location(&program, "test");
+            context.uniform1f(test_location.as_ref(), 0.5);
+
+            let a = context.get_uniform_location(&program, "u_projection");
+            // let matrix: [[f32; 4]; 4] = self.camera.into();
+            // let matrix: [f32; 16] = self.camera.as_ptr();
+
+            // log(&format!("{:?}", self.camera));
+
+            context.uniform_matrix4fv_with_f32_array(a.as_ref(), false, self.camera.as_slice());
+            // context.uniform_matrix4fv_with_f32_sequence(a.as_ref(), false, &matrix);
+
             context.bind_buffer(
                 WebGlRenderingContext::ARRAY_BUFFER,
                 Some(&material.unwrap().vbo),
