@@ -1,17 +1,21 @@
 // use cgmath::prelude::*;
 // use cgmath::Matrix3;
 // use cgmath::Vector3;
+use crate::wasm_utils::log;
 
 use glm::mat3;
+use glm::translate2d;
+use glm::vec2;
 use glm::vec3;
 use glm::Mat3;
+use glm::Vec2;
 use glm::Vec3;
 use wasm_bindgen::prelude::*;
 use web_sys::*;
 
 #[derive(Clone, Copy)]
 pub struct Transform2d {
-    pub position: Vec3,
+    pub position: Vec2,
     pub position_dirty: bool,
     pub position_matrix: Mat3,
 }
@@ -65,44 +69,26 @@ impl Object2D {
             id: 1,
             transform: Transform2d {
                 position_dirty: true,
-                position: vec3(0.0, 0.0, 1.0),
+                position: vec2(0.0, 0.0),
                 position_matrix: mat3(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0),
             },
-            // vertices: vec![-v, v, -v, -v, v, v, v, -v],
-            // vertices: [-v, v, -v, -v, v, v, v, -v],
-            // vertices: [-v, -v, v, -v, v, v],
             vertices: [-1.0, -1.0, 1.0, -1.0, -0.0, 1.0],
             indices: [0, 1, 2],
         }
-
-        // Object2D {
-        //     rotation: 0.0,
-        //     scale_dirty: true,
-        //     rotation_dirty: true,
-        //     position_dirty: true,
-        //     needs_calculation: true,
-        //     position: Vector3 {
-        //         x: 0.0,
-        //         y: 0.0,
-        //         z: 1.0,
-        //     },
-        //     scale: Vector3 {
-        //         x: 1.0,
-        //         y: 1.0,
-        //         z: 1.0,
-        //     },
-        //     position_matrix: Matrix3::from_cols(
-        //         Vector3::new(1.0, 0.0, 0.0),
-        //         Vector3::new(0.0, 1.0, 0.0),
-        //         Vector3::new(0.0, 0.0, 1.0),
-        //     ),
-        // }
     }
 
-    pub fn set_pos_x(&self, _x: f32) {
-        // if self.position[0] != x {
-        //     self.position[0] = x;
-        //     self.position_dirty = true;
-        // }
+    pub fn set_pos(&mut self, x: f32, y: f32) {
+        // self.transform.position = vec2(x, y);
+        // self.transform.position_dirty = true;
+    }
+
+    pub fn update(&mut self) {
+        // let mut transform: Transform2d = self.transform;
+        if self.transform.position_dirty {
+            self.transform.position_matrix =
+                translate2d(&self.transform.position_matrix, &self.transform.position);
+            // log(&format!("{:?}", self.transform.position_matrix));
+            self.transform.position_dirty = false;
+        }
     }
 }

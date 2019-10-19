@@ -109,9 +109,28 @@ fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
         attribute vec2 position;
         uniform float test;
         uniform mat4 u_projection;
+        uniform mat3 u_model;
+        
+        mat3 mat3_emu(mat4 m4) {
+            return mat3(
+                m4[0][0], m4[0][1], m4[0][2],
+                m4[1][0], m4[1][1], m4[1][2],
+                m4[2][0], m4[2][1], m4[2][2]);
+        }
+
+        mat3 get_model() {
+            return mat3(
+                1.0, 0.0, 0.0,
+                0.0, 1.0, 5.0,
+                5.0, 0.0, 1.0);
+        }
+
         void main() {
             v_pos = vec2(test);
-            gl_Position = vec4(position.x,position.y,0.0, 1.0) * u_projection;
+            mat3 projection = mat3_emu(u_projection);
+            mat3 mvp = projection * u_model;
+            vec3 pos = mvp * vec3(position.x,position.y,1.0);
+            gl_Position = vec4(pos, 1.0);
         }
     "#;
 
@@ -175,10 +194,10 @@ fn compile_and_bind_shader(frame: &Frame, material: &mut Option<Material>) {
 #[wasm_bindgen]
 impl Scene {
     pub fn new(div: &str, width: i8) -> Scene {
-        let left: f32 = -10.0;
-        let right: f32 = 10.0;
-        let top: f32 = 10.0;
-        let bottom: f32 = -10.0;
+        let left: f32 = -20.0;
+        let right: f32 = 20.0;
+        let top: f32 = 20.0;
+        let bottom: f32 = -20.0;
         let near: f32 = 0.01;
         let far: f32 = 5000.0;
         let camera: Mat4 = ortho(left, right, bottom, top, near, far);
@@ -225,7 +244,7 @@ impl Scene {
         for obj2d in self.children.iter_mut() {
             // log(&element.id.to_string());
             // element.update();
-
+            obj2d.update();
             compile_and_bind_shader(&self.frame, &mut obj2d.material);
             calculate_for_render(obj2d.transform);
 
@@ -236,15 +255,23 @@ impl Scene {
             // log(&format!("{:?}", obj2d.material));
 
             let program: &WebGlProgram = &material.unwrap().program;
+
+            context.use_program(Some(program));
+
             let test_location = context.get_uniform_location(&program, "test");
             context.uniform1f(test_location.as_ref(), 0.5);
 
             let a = context.get_uniform_location(&program, "u_projection");
-            // let matrix: [[f32; 4]; 4] = self.camera.into();
-            // let matrix: [f32; 16] = self.camera.as_ptr();
-            // log(&format!("{:?}", self.camera));
             context.uniform_matrix4fv_with_f32_array(a.as_ref(), false, self.camera.as_slice());
             // context.uniform_matrix4fv_with_f32_sequence(a.as_ref(), false, &matrix);
+
+            let u_model = context.get_uniform_location(&program, "u_model");
+            // log(&format!("{:?}", obj2d.transform.position_matrix.as_slice()));
+            context.uniform_matrix3fv_with_f32_array(
+                u_model.as_ref(),
+                false,
+                obj2d.transform.position_matrix.as_slice(),
+            );
 
             context.bind_buffer(
                 WebGlRenderingContext::ARRAY_BUFFER,
