@@ -36,6 +36,8 @@ function render() {
     let { mesh, speed } = e;
     e.x += speed;
     let xPost = Math.sin(e.x);
+    scene.get_by_id(e.id);
+    // console.log(mesh);
     // mesh.set_pos(xPost, 0);
   });
 
@@ -52,7 +54,6 @@ function addObjects(count = 1) {
     return obj;
   }).map(e => {
     scene.add(e);
-
     return e;
   });
 }

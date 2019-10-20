@@ -1,6 +1,0 @@
-
-
-
-impl ObjectContainer2D {
-    
-}

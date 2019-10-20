@@ -28,7 +28,7 @@ pub struct Scene {
     children: Vec<Object2D>,
 }
 
-fn calculate_for_render(_transform: Transform2d) {
+fn calculate_for_render(_transform: &Transform2d) {
     // if obj.position_dirty {
     //     log("Dirty");
     // }
@@ -242,18 +242,11 @@ impl Scene {
         // let size = self.children.len();
 
         for obj2d in self.children.iter_mut() {
-            // log(&element.id.to_string());
-            // element.update();
             obj2d.update();
             compile_and_bind_shader(&self.frame, &mut obj2d.material);
-            calculate_for_render(obj2d.transform);
+            calculate_for_render(&obj2d.transform);
 
             let material: Option<&Material> = obj2d.material.as_ref();
-
-            // log(&format!("{:?}", *material.unwrap().vbo));
-
-            // log(&format!("{:?}", obj2d.material));
-
             let program: &WebGlProgram = &material.unwrap().program;
 
             context.use_program(Some(program));
@@ -263,7 +256,6 @@ impl Scene {
 
             let a = context.get_uniform_location(&program, "u_projection");
             context.uniform_matrix4fv_with_f32_array(a.as_ref(), false, self.camera.as_slice());
-            // context.uniform_matrix4fv_with_f32_sequence(a.as_ref(), false, &matrix);
 
             let u_model = context.get_uniform_location(&program, "u_model");
             // log(&format!("{:?}", obj2d.transform.position_matrix.as_slice()));
@@ -304,38 +296,28 @@ impl Scene {
                 );
             }
 
-            // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-
-            // context.clear_color(0.0, 0.0, 0.0, 1.0);
-            // context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
-
-            // context.draw_arrays(
-            //     WebGlRenderingContext::TRIANGLES,
-            //     0,
-            //     (obj2d.vertices.len() / 2) as i32,
-            // );
-
-            // gl.drawElements(gl.TRIANGLES, nsize, gl.UNSIGNED_SHORT, 0);
             context.draw_elements_with_i32(
                 WebGlRenderingContext::TRIANGLES,
                 3,
                 WebGlRenderingContext::UNSIGNED_SHORT,
                 0,
             );
-
-            // let buffer = context.create_buffer().unwrap();
-
-            // log(&format!("{:?}", buffer)); // context.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&buffer));
-
-            // draw_on_scree(&self.frame, element);
         }
-
-        // log("Bitti");
-        // log(&size.to_string());
     }
 
     pub fn add(&mut self, obj: Object2D) {
         self.children.push(obj);
+    }
+
+    pub fn get_by_id<'a>(&self, id: u8) -> Option<&Object2D> {
+        // log(&format!(
+        //     "{:?}",
+        //     self.children.iter().find(|child| child.id == 1)
+        // ));
+        // for child in self.children.iter() {
+        //     if
+        // }
+        return self.children.iter().find(|child| child.id == 1);
     }
 
     pub fn child_num(&self) -> usize {

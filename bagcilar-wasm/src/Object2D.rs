@@ -13,7 +13,7 @@ use glm::Vec3;
 use wasm_bindgen::prelude::*;
 use web_sys::*;
 
-#[derive(Clone, Copy)]
+#[derive(Debug)]
 pub struct Transform2d {
     pub position: Vec2,
     pub position_dirty: bool,
@@ -21,7 +21,7 @@ pub struct Transform2d {
 }
 
 #[wasm_bindgen]
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Material {
     #[wasm_bindgen(skip)]
     pub program: WebGlProgram,
@@ -32,7 +32,7 @@ pub struct Material {
 }
 
 #[wasm_bindgen]
-#[derive(Clone)]
+#[derive(Debug)]
 pub struct Object2D {
     #[wasm_bindgen(skip)]
     pub transform: Transform2d,
@@ -78,12 +78,13 @@ impl Object2D {
     }
 
     pub fn set_pos(&mut self, x: f32, y: f32) {
-        // self.transform.position = vec2(x, y);
-        // self.transform.position_dirty = true;
+        self.transform.position = vec2(x, y);
+        self.transform.position_dirty = true;
     }
 
     pub fn update(&mut self) {
         // let mut transform: Transform2d = self.transform;
+
         if self.transform.position_dirty {
             self.transform.position_matrix =
                 translate2d(&self.transform.position_matrix, &self.transform.position);
