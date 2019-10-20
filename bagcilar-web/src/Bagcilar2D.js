@@ -38,7 +38,7 @@ function render() {
     let xPost = Math.sin(e.x);
     scene.get_by_id(e.id);
     // console.log(mesh);
-    // mesh.set_pos(xPost, 0);
+    mesh.set_pos(xPost, 0);
   });
 
   scene.render();

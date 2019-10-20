@@ -1,15 +1,8 @@
-// use cgmath::prelude::*;
-// use cgmath::Matrix3;
-// use cgmath::Vector3;
-use crate::wasm_utils::log;
-
 use glm::mat3;
 use glm::translate2d;
 use glm::vec2;
-use glm::vec3;
 use glm::Mat3;
 use glm::Vec2;
-use glm::Vec3;
 use wasm_bindgen::prelude::*;
 use web_sys::*;
 

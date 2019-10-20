@@ -1,14 +1,10 @@
-// pub mod Container;
-pub mod object2d;
-// pub mod Sprite;
-// use self::wasm_utils::{log, test};
-// use Object2D;
-pub mod scene;
+// pub mod object2d;
+// pub mod scene;
 mod wasm_utils;
 use wasm_utils::log;
-// mod Test;
-// use Test::test_fn;
 use wasm_bindgen::prelude::*;
+pub mod scene;
+pub mod object2d;
 
 extern crate nalgebra_glm as glm;
 

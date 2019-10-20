@@ -1,9 +1,5 @@
-use crate::object2d::Transform2d;
 use crate::object2d::{Material, Object2D};
 use crate::wasm_utils::log;
-// use cgmath::ortho;
-// use cgmath::prelude::*;
-// use cgmath::Matrix4;
 use glm::ortho;
 use glm::Mat4;
 use wasm_bindgen::prelude::*;
@@ -14,40 +10,12 @@ struct Frame {
     context: WebGlRenderingContext,
 }
 
-// fn to_string(v: &Vector3<f32>) -> String {
-//     let x = v.x.to_string().to_owned();
-//     let y = v.y.to_string().to_owned();
-//     return format!("x:{} y:{}", x, y);
-// }
-
 #[wasm_bindgen]
 pub struct Scene {
     width: i8,
     frame: Frame,
     camera: Mat4,
     children: Vec<Object2D>,
-}
-
-fn calculate_for_render(_transform: &Transform2d) {
-    // if obj.position_dirty {
-    //     log("Dirty");
-    // }
-    // obj.position_matrix * obj.position;
-    // if transform.position_dirty {
-    //transform.position_dirty = false;
-
-    // let vector: Vector3<f32> = Vector3 {
-    //     x: 1.0,
-    //     y: 0.0,
-    //     z: 1.0,
-    // };
-
-    // let m: Matrix4<f32> = Matrix4::from_translation(vector);
-    // transform.position_matrix.
-
-    // let position = transform.position_matrix * vector;
-    // log(&to_string(&position));
-    // }
 }
 
 pub fn compile_shader(
@@ -236,15 +204,12 @@ impl Scene {
 
     pub fn render(&mut self) {
         let context: &WebGlRenderingContext = &self.frame.context;
-        // let context: WebGlRenderingContext = context;
         context.clear_color(0.0, 0.0, 0.0, 1.0);
         context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
-        // let size = self.children.len();
 
         for obj2d in self.children.iter_mut() {
             obj2d.update();
             compile_and_bind_shader(&self.frame, &mut obj2d.material);
-            calculate_for_render(&obj2d.transform);
 
             let material: Option<&Material> = obj2d.material.as_ref();
             let program: &WebGlProgram = &material.unwrap().program;
@@ -305,11 +270,11 @@ impl Scene {
         }
     }
 
-    pub fn add(&mut self, obj: Object2D) {
-        self.children.push(obj);
+    pub fn add(&mut self, obj: &Object2D) {
+        self.children.push(obj.as);
     }
 
-    pub fn get_by_id<'a>(&self, id: u8) -> Option<&Object2D> {
+    pub fn get_by_id(&self, _id: u8) {
         // log(&format!(
         //     "{:?}",
         //     self.children.iter().find(|child| child.id == 1)
@@ -317,7 +282,7 @@ impl Scene {
         // for child in self.children.iter() {
         //     if
         // }
-        return self.children.iter().find(|child| child.id == 1);
+        // return self.children.iter().find(|child| child.id == 1);
     }
 
     pub fn child_num(&self) -> usize {
