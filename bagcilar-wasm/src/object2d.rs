@@ -44,6 +44,10 @@ impl Object2D {
         self.id = i;
     }
 
+    pub fn get_id(&self) -> u8 {
+        self.id
+    }
+
     // pub fn set_vertices(&mut self) {
     //     self.vertices = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
     // }

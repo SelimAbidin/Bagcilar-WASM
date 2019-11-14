@@ -223,7 +223,6 @@ impl Scene {
             context.uniform_matrix4fv_with_f32_array(a.as_ref(), false, self.camera.as_slice());
 
             let u_model = context.get_uniform_location(&program, "u_model");
-            // log(&format!("{:?}", obj2d.transform.position_matrix.as_slice()));
             context.uniform_matrix3fv_with_f32_array(
                 u_model.as_ref(),
                 false,
@@ -252,7 +251,6 @@ impl Scene {
             );
 
             unsafe {
-                // context.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
                 let indices_array = js_sys::Int16Array::view(&obj2d.indices);
                 context.buffer_data_with_array_buffer_view(
                     WebGlRenderingContext::ELEMENT_ARRAY_BUFFER,
@@ -270,27 +268,23 @@ impl Scene {
         }
     }
 
-    pub fn add(&mut self, obj: &Object2D) {
-        self.children.push(obj.as);
+    pub fn add(&mut self, mut obj: Object2D) -> u8 {
+        let id: u8 = self.children.len() as u8;
+        obj.set_id(id);
+        self.children.push(obj);
+        return id;
     }
 
-    pub fn get_by_id(&self, _id: u8) {
-        // log(&format!(
-        //     "{:?}",
-        //     self.children.iter().find(|child| child.id == 1)
-        // ));
-        // for child in self.children.iter() {
-        //     if
-        // }
-        // return self.children.iter().find(|child| child.id == 1);
+    pub fn set_xy_by_id(&mut self, x: f32, y: f32, id: usize) {
+        self.children[id].set_pos(x, y);
     }
+
+    // pub fn get_by_id(&self, _id: u8) -> Option<Object2D> {
+    //     let t: Option<&'static Object2D> = self.children.iter().find(|child| child.id == 1);
+    //     return t;
+    // }
 
     pub fn child_num(&self) -> usize {
         return self.children.len();
-    }
-
-    pub fn speak(&self) {
-        let s: String = self.width.to_string();
-        log(&s);
     }
 }
